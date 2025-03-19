@@ -11,6 +11,7 @@ public class Interpreter {
         ensureFileExists(filename);
         getUserInputAndSaveToFile();
         processFile();
+        displayFinalVariables();
     }
     
     private static void ensureFileExists(String filename) {
@@ -70,17 +71,23 @@ public class Interpreter {
         
         if (line.startsWith("Lexo")) {
             String varName = line.split(" ")[1].trim();
-            System.out.print("Vendos vlerën për " + varName + ": ");
-            while (!scanner.hasNextInt()) {
-                System.out.print("Ju lutem vendosni një numër të vlefshëm për " + varName + ": ");
-                scanner.next();
+            if (!variables.containsKey(varName)) { // Kontrollon nëse variabla është futur tashmë
+                System.out.print("Vendos vlerën për " + varName + ": ");
+                while (!scanner.hasNextInt()) {
+                    System.out.print("Ju lutem vendosni një numër të vlefshëm për " + varName + ": ");
+                    scanner.next();
+                }
+                int value = scanner.nextInt();
+                scanner.nextLine(); // Konsumon linjën e mbetur
+                variables.put(varName, value);
             }
-            int value = scanner.nextInt();
-            scanner.nextLine(); // Konsumon linjën e mbetur
-            variables.put(varName, value);
         } else if (line.startsWith("Afisho")) {
             String varName = line.split(" ")[1].trim();
-            System.out.println(varName + " = " + variables.getOrDefault(varName, 0));
+            if (!variables.containsKey(varName)) {
+                System.out.println("Gabim: Variabli " + varName + " nuk është i definuar.");
+            } else {
+                System.out.println(varName + " = " + variables.get(varName));
+            }
         } else if (line.contains("=")) {
             String[] parts = line.split("=");
             String varName = parts[0].trim();
@@ -152,6 +159,13 @@ public class Interpreter {
                 return a / b;
             }
             default -> { return 0; }
+        }
+    }
+    
+    private static void displayFinalVariables() {
+        System.out.println("\nVariablat përfundimtare:");
+        for (Map.Entry<String, Integer> entry : variables.entrySet()) {
+            System.out.println(entry.getKey() + " = " + entry.getValue());
         }
     }
 }
