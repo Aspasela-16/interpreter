@@ -3,7 +3,7 @@ import java.util.*;
 import java.util.regex.*;
 
 public class Interpreter {
-    private static final Map<String, Integer> variables = new HashMap<>();
+    private static final Map<String, Double> variables = new HashMap<>();
     private static final String filename = "ABC.txt";
     private static final Scanner scanner = new Scanner(System.in);
     
@@ -27,7 +27,6 @@ public class Interpreter {
     
     private static void getUserInputAndSaveToFile() {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
-            
             System.out.println("Shkruani vlerat fillestare për variablat (shkruaj 'exit' për të ndaluar):");
             while (true) {
                 System.out.print("Shprehja: ");
@@ -71,17 +70,18 @@ public class Interpreter {
         
         if (line.startsWith("Lexo")) {
             String varName = line.split(" ")[1].trim();
-            if (!variables.containsKey(varName)) { // Kontrollon nëse variabla është futur tashmë
+            if (!variables.containsKey(varName)) {  // Kontrollo që variabla të mos jetë inicializuar nga një shprehje
                 System.out.print("Vendos vlerën për " + varName + ": ");
-                while (!scanner.hasNextInt()) {
+                while (!scanner.hasNextDouble()) {
                     System.out.print("Ju lutem vendosni një numër të vlefshëm për " + varName + ": ");
                     scanner.next();
                 }
-                int value = scanner.nextInt();
+                double value = scanner.nextDouble();
                 scanner.nextLine(); // Konsumon linjën e mbetur
                 variables.put(varName, value);
             }
-        } else if (line.startsWith("Afisho")) {
+        }
+         else if (line.startsWith("Afisho")) {
             String varName = line.split(" ")[1].trim();
             if (!variables.containsKey(varName)) {
                 System.out.println("Gabim: Variabli " + varName + " nuk është i definuar.");
@@ -89,48 +89,50 @@ public class Interpreter {
                 System.out.println(varName + " = " + variables.get(varName));
             }
         } else if (line.contains("=")) {
-            String[] parts = line.split("=");
+            String[] parts = line.split("\\s*=\\s*"); // Përdor regex për të shmangur hapësirat e panevojshme
             String varName = parts[0].trim();
             String expr = parts[1].trim();
-            int result = evaluateExpression(expr);
+
+            System.out.println("Shprehja e përpunuar: " + expr); // Debugging output
+
+            double result = evaluateExpression(expr);
             variables.put(varName, result);
         }
     }
     
-    private static int evaluateExpression(String expr) {
+    private static double evaluateExpression(String expr) {
         for (String var : variables.keySet()) {
             expr = expr.replace(var, String.valueOf(variables.get(var)));
         }
         return eval(expr);
     }
     
-    private static int eval(String expr) {
+    private static double eval(String expr) {
         try {
-            Stack<Integer> values = new Stack<>();
+            List<String> tokens = new ArrayList<>();
+            Matcher matcher = Pattern.compile("\\d+(\\.\\d+)?|[+\\-*/]").matcher(expr);
+            while (matcher.find()) {
+                tokens.add(matcher.group());
+            }
+
+            Stack<Double> values = new Stack<>();
             Stack<Character> ops = new Stack<>();
-            
-            for (int i = 0; i < expr.length(); i++) {
-                char c = expr.charAt(i);
-                
-                if (Character.isDigit(c)) {
-                    StringBuilder sb = new StringBuilder();
-                    while (i < expr.length() && Character.isDigit(expr.charAt(i))) {
-                        sb.append(expr.charAt(i++));
-                    }
-                    i--; // Rikthe një hap pas
-                    values.push(Integer.parseInt(sb.toString()));
-                } else if (c == '+' || c == '-' || c == '*' || c == '/') {
-                    while (!ops.isEmpty() && precedence(ops.peek()) >= precedence(c)) {
+
+            for (String token : tokens) {
+                if (token.matches("\\d+(\\.\\d+)?")) {
+                    values.push(Double.parseDouble(token));
+                } else if (token.matches("[+\\-*/]")) {
+                    while (!ops.isEmpty() && precedence(ops.peek()) >= precedence(token.charAt(0))) {
                         values.push(applyOperation(ops.pop(), values.pop(), values.pop()));
                     }
-                    ops.push(c);
+                    ops.push(token.charAt(0));
                 }
             }
-            
+
             while (!ops.isEmpty()) {
                 values.push(applyOperation(ops.pop(), values.pop(), values.pop()));
             }
-            
+
             return values.pop();
         } catch (Exception e) {
             System.out.println("Gabim në përllogaritje: " + e.getMessage());
@@ -146,7 +148,7 @@ public class Interpreter {
         };
     }
     
-    private static int applyOperation(char op, int b, int a) {
+    private static double applyOperation(char op, double b, double a) {
         switch (op) {
             case '+' -> { return a + b; }
             case '-' -> { return a - b; }
@@ -164,7 +166,7 @@ public class Interpreter {
     
     private static void displayFinalVariables() {
         System.out.println("\nVariablat përfundimtare:");
-        for (Map.Entry<String, Integer> entry : variables.entrySet()) {
+        for (Map.Entry<String, Double> entry : variables.entrySet()) {
             System.out.println(entry.getKey() + " = " + entry.getValue());
         }
     }
