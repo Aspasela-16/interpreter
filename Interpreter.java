@@ -102,10 +102,16 @@ public class Interpreter {
     
     private static double evaluateExpression(String expr) {
         for (String var : variables.keySet()) {
+            if (!variables.containsKey(var)) {
+                System.out.println("Gabim: Variabla " + var + " nuk është e inicializuar.");
+                return 0;
+            }
             expr = expr.replace(var, String.valueOf(variables.get(var)));
         }
+        System.out.println("Shprehja pas zëvendësimit: " + expr); // Debugging
         return eval(expr);
     }
+    
     
     private static double eval(String expr) {
         try {
@@ -135,7 +141,7 @@ public class Interpreter {
 
             return values.pop();
         } catch (Exception e) {
-            System.out.println("Ndodhi nje gabim në përllogaritje: " + e.getMessage());
+            System.out.println("Gabim në përllogaritje: " + e.getMessage());
             return 0;
         }
     }
