@@ -135,7 +135,7 @@ public class Interpreter {
 
             return values.pop();
         } catch (Exception e) {
-            System.out.println("Gabim në përllogaritje: " + e.getMessage());
+            System.out.println("Ndodhi nje gabim në përllogaritje: " + e.getMessage());
             return 0;
         }
     }
