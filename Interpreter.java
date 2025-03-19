@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class interpreter {
+public class Interpreter {
     private static final Map<String, Integer> variables = new HashMap<>();
     private static final String filename = "ABC.txt";
     private static final Scanner scanner = new Scanner(System.in);
