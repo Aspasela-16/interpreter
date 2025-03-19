@@ -2,13 +2,45 @@ import java.io.*;
 import java.util.*;
 import java.util.regex.*;
 
-public class Interpreter {
+public class interpreter {
     private static final Map<String, Integer> variables = new HashMap<>();
+    private static final String filename = "ABC.txt";
+    private static final Scanner scanner = new Scanner(System.in);
     
     public static void main(String[] args) {
-        String filename = "ABC.txt";
         ensureFileExists(filename);
-        
+        getUserInputAndSaveToFile();
+        processFile();
+    }
+    
+    private static void ensureFileExists(String filename) {
+        File file = new File(filename);
+        if (!file.exists()) {
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+                System.out.println("Skedari u krijua me sukses: " + filename);
+            } catch (IOException e) {
+                System.out.println("Gabim gjatë krijimit të skedarit: " + e.getMessage());
+            }
+        }
+    }
+    
+    private static void getUserInputAndSaveToFile() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename, true))) {
+            
+            System.out.println("Shkruani vlerat fillestare për variablat (shkruaj 'exit' për të ndaluar):");
+            while (true) {
+                System.out.print("Shprehja: ");
+                String input = scanner.nextLine();
+                if (input.equalsIgnoreCase("exit")) break;
+                writer.write(input + "\n");
+            }
+            System.out.println("Të dhënat u ruajtën në skedar.");
+        } catch (IOException e) {
+            System.out.println("Gabim gjatë ruajtjes së të dhënave: " + e.getMessage());
+        }
+    }
+    
+    private static void processFile() {
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             StringBuilder content = new StringBuilder();
             String line;
@@ -20,25 +52,6 @@ public class Interpreter {
             parseAndExecute(expressions);
         } catch (IOException e) {
             System.out.println("Gabim gjatë leximit të skedarit: " + e.getMessage());
-        }
-    }
-    
-    private static void ensureFileExists(String filename) {
-        File file = new File(filename);
-        if (!file.exists()) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
-                writer.write("Lexo a;\n");
-                writer.write("a = a + 5;\n");
-                writer.write("b = 0;\n");
-                writer.write("c = a + b;\n");
-                writer.write("Afisho a;\n");
-                writer.write("b = c / a;\n");
-                writer.write("d = c - 1;\n");
-                writer.write("Afisho d;\n");
-                System.out.println("Skedari u krijua me sukses: " + filename);
-            } catch (IOException e) {
-                System.out.println("Gabim gjatë krijimit të skedarit: " + e.getMessage());
-            }
         }
     }
     
@@ -57,10 +70,17 @@ public class Interpreter {
         
         if (line.startsWith("Lexo")) {
             String varName = line.split(" ")[1].trim();
-            variables.put(varName, 0);
+            System.out.print("Vendos vlerën për " + varName + ": ");
+            while (!scanner.hasNextInt()) {
+                System.out.print("Ju lutem vendosni një numër të vlefshëm për " + varName + ": ");
+                scanner.next();
+            }
+            int value = scanner.nextInt();
+            scanner.nextLine(); // Konsumon linjën e mbetur
+            variables.put(varName, value);
         } else if (line.startsWith("Afisho")) {
             String varName = line.split(" ")[1].trim();
-            System.out.println(variables.getOrDefault(varName, 0));
+            System.out.println(varName + " = " + variables.getOrDefault(varName, 0));
         } else if (line.contains("=")) {
             String[] parts = line.split("=");
             String varName = parts[0].trim();
