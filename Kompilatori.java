@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.HashMap;
 import java.util.Scanner;
 
-public class Kompilatori {
+public class MathInterpreter {
     private static final String FILE_NAME = "ABC.txt";
 
     public static void main(String[] args) {
@@ -19,12 +19,12 @@ public class Kompilatori {
                 break;
             }
             
-            processCommand(input, variables);
+            interpretuesKomandash(input, variables);
         }
         scanner.close();
     }
 
-    private static void processCommand(String command, HashMap<String, Double> variables) {
+    private static void interpretuesKomandash(String command, HashMap<String, Double> variables) {
         if (command.startsWith("Lexo ")) {
             String varName = command.substring(5).replace(";", "").trim();
             Scanner scanner = new Scanner(System.in);
@@ -44,7 +44,7 @@ public class Kompilatori {
             String varName = parts[0].trim();
             String expression = parts[1].trim();
             try {
-                double result = evaluateExpression(expression, variables);
+                double result = llogaritShprehjen(expression, variables);
                 variables.put(varName, result);
                 saveVariablesToFile(variables);
             } catch (Exception e) {
@@ -55,7 +55,7 @@ public class Kompilatori {
         }
     }
 
-    private static double evaluateExpression(String expression, HashMap<String, Double> variables) {
+    private static double llogaritShprehjen(String expression, HashMap<String, Double> variables) {
         for (String var : variables.keySet()) {
             expression = expression.replace(var, variables.get(var).toString());
         }
@@ -124,7 +124,7 @@ public class Kompilatori {
             for (String key : variables.keySet()) {
                 writer.write(key + " = " + variables.get(key) + "\n");
             }
-            
+            System.out.println("Te dhenat u ruajten ne skedarin ABC.txt.");
         } catch (IOException e) {
             System.out.println("Gabim gjate ruajtjes se skedarit!");
             e.printStackTrace();
