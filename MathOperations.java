@@ -1,12 +1,13 @@
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.HashMap;
 import java.util.Scanner;
 
 public class MathInterpreter {
+    private static final String FILE_NAME = "ABC.txt";
+
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        HashMap<String, Double> variables = new HashMap<>();
+        HashMap<String, Double> variables = loadVariablesFromFile();
         String input;
 
         while (true) {
@@ -14,6 +15,7 @@ public class MathInterpreter {
             input = scanner.nextLine().trim();
             
             if (input.equalsIgnoreCase("exit")) {
+                saveVariablesToFile(variables);
                 break;
             }
             
@@ -29,6 +31,7 @@ public class MathInterpreter {
             System.out.print("Shkruani vleren per " + varName + ": ");
             double value = scanner.nextDouble();
             variables.put(varName, value);
+            saveVariablesToFile(variables);
         } else if (command.startsWith("Afisho ")) {
             String varName = command.substring(7).replace(";", "").trim();
             if (variables.containsKey(varName)) {
@@ -43,6 +46,7 @@ public class MathInterpreter {
             try {
                 double result = evaluateExpression(expression, variables);
                 variables.put(varName, result);
+                saveVariablesToFile(variables);
             } catch (Exception e) {
                 System.out.println("Gabim ne shprehje: " + expression);
             }
@@ -113,5 +117,34 @@ public class MathInterpreter {
                 return x;
             }
         }.parse();
+    }
+
+    private static void saveVariablesToFile(HashMap<String, Double> variables) {
+        try (FileWriter writer = new FileWriter(FILE_NAME)) {
+            for (String key : variables.keySet()) {
+                writer.write(key + " = " + variables.get(key) + "\n");
+            }
+            System.out.println("Te dhenat u ruajten ne skedarin ABC.txt.");
+        } catch (IOException e) {
+            System.out.println("Gabim gjate ruajtjes se skedarit!");
+            e.printStackTrace();
+        }
+    }
+
+    private static HashMap<String, Double> loadVariablesFromFile() {
+        HashMap<String, Double> variables = new HashMap<>();
+        try (BufferedReader reader = new BufferedReader(new FileReader(FILE_NAME))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split("=");
+                if (parts.length == 2) {
+                    variables.put(parts[0].trim(), Double.parseDouble(parts[1].trim()));
+                }
+            }
+            System.out.println("Te dhenat u ngarkuan nga skedari ABC.txt.");
+        } catch (IOException e) {
+            System.out.println("Asnje skedar ABC.txt nuk u gjet, do te krijohet nje i ri.");
+        }
+        return variables;
     }
 }
