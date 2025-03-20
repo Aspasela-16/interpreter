@@ -1,8 +1,4 @@
-Lexo a;
-a = a + 9;
-b = 0;
-c = a + b;
-Afisho a;
-b = c / a;
-d = c - 1;
-Afisho d;
+Vlera a: 8.0
+Vlera b: 9.0
+Operacioni: /
+Rezultati: 0.8888888888888888
