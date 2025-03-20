@@ -11,7 +11,7 @@ public class MathInterpreter {
         String input;
 
         while (true) {
-            System.out.print("> ");
+            System.out.print("Fut te dhenat nga perdoruesi ");
             input = scanner.nextLine().trim();
             
             if (input.equalsIgnoreCase("exit")) {
