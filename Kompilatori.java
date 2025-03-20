@@ -11,7 +11,7 @@ public class Kompilatori {
         String input;
 
         while (true) {
-            System.out.print("~ ");
+            System.out.print("Fut te dhenat ");
             input = scanner.nextLine().trim();
             
             if (input.equalsIgnoreCase("exit")) {
